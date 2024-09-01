@@ -80,12 +80,16 @@ pub use datafusion_execution::config::SessionConfig;
 pub use datafusion_execution::TaskContext;
 pub use datafusion_expr::execution_props::ExecutionProps;
 use datafusion_optimizer::{AnalyzerRule, OptimizerRule};
+use crate::execution::context::plugin::load_plugin;
 
 mod avro;
 mod csv;
 mod json;
 #[cfg(feature = "parquet")]
 mod parquet;
+
+mod plugin;
+mod plugin_core;
 
 /// DataFilePaths adds a method to convert strings and vector of strings to vector of [`ListingTableUrl`] URLs.
 /// This allows methods such [`SessionContext::read_csv`] and [`SessionContext::read_avro`]
@@ -1401,6 +1405,11 @@ impl SessionContext {
             .write()
             .register_table_options_extension(extension)
     }
+
+    pub fn register_extension(&self, path: &str, function_name: &str) {
+        load_plugin(path.into(), function_name.to_string(), self.clone());
+    }
+
 }
 
 impl FunctionRegistry for SessionContext {
