@@ -1804,6 +1804,17 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_coalesce_schema() -> Result<()> {
+        let ctx = SessionContext::new();
+
+        let query = r#"SELECT COALESCE(null, 5)"#;
+
+        let result = ctx.sql(query).await?;
+        assert_logical_expr_schema_eq_physical_expr_schema(result).await?;
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn test_array_agg_schema() -> Result<()> {
         let ctx = SessionContext::new();
 

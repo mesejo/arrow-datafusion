@@ -21,7 +21,7 @@ use arrow::array::{new_null_array, BooleanArray};
 use arrow::compute::kernels::zip::zip;
 use arrow::compute::{and, is_not_null, is_null};
 use arrow::datatypes::DataType;
-
+use itertools::Itertools;
 use datafusion_common::{exec_err, ExprSchema, Result};
 use datafusion_expr::type_coercion::binary::type_union_resolution;
 use datafusion_expr::{ColumnarValue, Expr, ExprSchemable};
@@ -60,12 +60,12 @@ impl ScalarUDFImpl for CoalesceFunc {
     }
 
     fn return_type(&self, arg_types: &[DataType]) -> Result<DataType> {
-        Ok(arg_types[0].clone())
+        Ok(arg_types.iter().find_or_first(|d| !d.is_null()).unwrap().clone())
     }
 
-    // If all the element in coalesce is non-null, the result is non-null
+    // If all the elements in coalesce are non-null, the result is non-null
     fn is_nullable(&self, args: &[Expr], schema: &dyn ExprSchema) -> bool {
-        args.iter().any(|e| e.nullable(schema).ok().unwrap_or(true))
+        args.iter().all(|e| e.nullable(schema).ok().unwrap_or(true))
     }
 
     /// coalesce evaluates to the first value which is not NULL
