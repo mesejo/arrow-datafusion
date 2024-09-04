@@ -488,7 +488,7 @@ SELECT COALESCE(column1, column2) FROM VALUES (null, 1.2);
 
 # multiple rows and columns with null need type coercion
 statement ok
-SELECT COALESCE(column1, column2, column3) FROM VALUES
+SELECT column1, column2, column3 FROM VALUES
 (null, 2, 'a'),
 (1.1, null, 'b'),
 (2, 5, null);
