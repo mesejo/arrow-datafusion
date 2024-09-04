@@ -374,7 +374,7 @@ NULL a
 NULL b
 3 c
 
-query TT
+query ?T
 VALUES (NULL,'a'),(NULL,'b'),(NULL,'c')
 ----
 NULL a
@@ -395,7 +395,7 @@ VALUES (1,NULL),(2,NULL),(3,'c')
 2 NULL
 3 c
 
-query IIIIIIIIIIIIITTR
+query IIIIIIIIIIIII?TR
 VALUES (1,2,3,4,5,6,7,8,9,10,11,12,13,NULL,'F',3.5)
 ----
 1 2 3 4 5 6 7 8 9 10 11 12 13 NULL F 3.5
@@ -482,6 +482,17 @@ CREATE TABLE foo2(c1 double, c2 double) AS VALUES
 (1.1, 4.1),
 (2, 5),
 (3, 6);
+
+statement ok
+SELECT COALESCE(column1, column2) FROM VALUES (null, 1.2);
+
+# multiple rows and columns with null need type coercion
+statement ok
+SELECT COALESCE(column1, column2, column3) FROM VALUES
+(null, 2, 'a'),
+(1.1, null, 'b'),
+(2, 5, null);
+
 
 # foo distinct
 query T

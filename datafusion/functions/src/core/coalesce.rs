@@ -67,7 +67,7 @@ impl ScalarUDFImpl for CoalesceFunc {
             .clone())
     }
 
-    // If all the elements in coalesce are non-null, the result is non-null
+    // If any the arguments in coalesce is non-null, the result is non-null
     fn is_nullable(&self, args: &[Expr], schema: &dyn ExprSchema) -> bool {
         args.iter().all(|e| e.nullable(schema).ok().unwrap_or(true))
     }
