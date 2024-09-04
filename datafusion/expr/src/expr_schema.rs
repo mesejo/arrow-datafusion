@@ -150,7 +150,7 @@ impl ExprSchemable for Expr {
                     .collect::<Result<Vec<_>>>()?;
 
                 // verify that function is invoked with correct number and type of arguments as defined in `TypeSignature`
-                data_types_with_scalar_udf(&arg_data_types, func).map_err(|err| {
+                let new_data_types = data_types_with_scalar_udf(&arg_data_types, func).map_err(|err| {
                     plan_datafusion_err!(
                         "{} {}",
                         err,
@@ -164,7 +164,7 @@ impl ExprSchemable for Expr {
 
                 // perform additional function arguments validation (due to limited
                 // expressiveness of `TypeSignature`), then infer return type
-                Ok(func.return_type_from_exprs(args, schema, &arg_data_types)?)
+                Ok(func.return_type_from_exprs(args, schema, &new_data_types)?)
             }
             Expr::WindowFunction(WindowFunction { fun, args, .. }) => {
                 let data_types = args
