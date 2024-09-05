@@ -1,0 +1,15 @@
+query error
+select encode(12, 'a');
+----
+DataFusion error: Error during planning: Execution error: User-defined coercion failed with Execution("1st argument should be string or binary or null, got [Int64, Utf8]") No function matches the given name and argument types 'encode(Int64, Utf8)'. You might need to add explicit type casts.
+	Candidate functions:
+	encode(UserDefined)
+
+
+query T
+select encode(null, 'hex');
+----
+NULL
+
+query error 1st argument should be string or binary or null, got \[Int64, Utf8\]
+select encode(12, 'hex')
