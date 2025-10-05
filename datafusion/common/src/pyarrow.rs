@@ -19,7 +19,7 @@
 
 use arrow::array::{Array, ArrayData};
 use arrow::pyarrow::{FromPyArrow, ToPyArrow};
-use pyo3::exceptions::PyException;
+use pyo3::exceptions::{PyException, PyNotImplementedError};
 use pyo3::prelude::PyErr;
 use pyo3::types::{PyAnyMethods, PyList};
 use pyo3::{Bound, FromPyObject, IntoPyObject, PyAny, PyObject, PyResult, Python};
@@ -28,7 +28,15 @@ use crate::{DataFusionError, ScalarValue};
 
 impl From<DataFusionError> for PyErr {
     fn from(err: DataFusionError) -> PyErr {
-        PyException::new_err(err.to_string())
+
+        match err {
+            DataFusionError::External(boxed) => match boxed.downcast::<PyErr>() {
+                Ok(py_err) => *py_err,
+                Err(err) => PyException::new_err(err.to_string()),
+            },
+            DataFusionError::NotImplemented(message) => PyNotImplementedError::new_err(message),
+            _ => PyException::new_err(err.to_string()),
+        }
     }
 }
 
